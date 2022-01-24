@@ -9,12 +9,27 @@ import {marked} from 'marked';
 //** pakkar frá okkur eigin kóða **/
 import {blogTemplate, makeHTML} from './make-html.js';
 import { parse } from './parser.js';
+import { mkdir } from 'fs';
 
 const BLOG_DIR = './blog';
 const OUTPUT_DIR = './dist';
 
+async function direxists(dir){
+    try{
+        const info= await stat(dir);
+        return info.isDirectory();
+
+    }catch(e){
+        return false;
+    }
+}
+
 async function main(){
     const files = await readdir(BLOG_DIR);
+
+    if(!(await direxists(OUTPUT_DIR))){
+        await mkdir(OUTPUT_DIR);
+    }
 
 
     for (const file of files){
