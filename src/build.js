@@ -7,7 +7,7 @@ import graymatter from 'gray-matter';
 import {marked} from 'marked';
 
 //** pakkar frá okkur eigin kóða **/
-import {blogTemplate, makeHTML} from './make-html.js';
+import {blogTemplate, makeHTML, makeIndex} from './make-html.js';
 import { parse } from './parser.js';
 
 const BLOG_DIR = './blog';
@@ -29,7 +29,7 @@ async function main(){
         await mkdir(OUTPUT_DIR);
     }
 
-
+    const Blogs= [];
 
     for (const file of files){
         const path = join(BLOG_DIR, file);
@@ -45,13 +45,17 @@ async function main(){
 
         const parsed = parse(str);
         const html= makeHTML(parsed);
-        const blog = blogTemplate(parsed.metadata.title, html );
+        const blog = blogTemplate(parsed.metadata.title, html , true );
         const slug= parsed.metadata.slug;
         const filename = join(OUTPUT_DIR, `${slug}.html`);
 
-        await writeFile(filename,blog);
+        await writeFile(filename,blog, {flag: 'w+'});
    
+        Blogs.push(parsed.metadata);
     }
+    const index = blogTemplate('Bloggið mitt ',makeIndex(Blogs));
+    await writeFile(join(OUTPUT_DIR, 'index.html'),index, {flag: 'w+'});
+    
 
 }
 
