@@ -1,6 +1,6 @@
 //** native pakkar efstir **/
 import {join} from 'path';
-import {writeFile ,readFile, readdir, stat} from 'fs/promises';
+import {writeFile ,mkdir ,readFile, readdir, stat} from 'fs/promises';
 
 //** pakkar sem við sækjum **/
 import graymatter from 'gray-matter';
@@ -9,7 +9,6 @@ import {marked} from 'marked';
 //** pakkar frá okkur eigin kóða **/
 import {blogTemplate, makeHTML} from './make-html.js';
 import { parse } from './parser.js';
-import { mkdir } from 'fs';
 
 const BLOG_DIR = './blog';
 const OUTPUT_DIR = './dist';
@@ -18,7 +17,6 @@ async function direxists(dir){
     try{
         const info= await stat(dir);
         return info.isDirectory();
-
     }catch(e){
         return false;
     }
@@ -32,9 +30,11 @@ async function main(){
     }
 
 
+
     for (const file of files){
         const path = join(BLOG_DIR, file);
         const info = await stat(path);
+
         if (info.isDirectory()){
             continue;
 
@@ -44,16 +44,11 @@ async function main(){
         const str =data.toString('utf-8');
 
         const parsed = parse(str);
-        
-        console.log(parsed);
-
         const html= makeHTML(parsed);
-
-        console.log('blog :>>',html);
-
         const blog = blogTemplate(parsed.metadata.title, html );
         const slug= parsed.metadata.slug;
         const filename = join(OUTPUT_DIR, `${slug}.html`);
+
         await writeFile(filename,blog);
    
     }
